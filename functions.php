@@ -25,8 +25,4 @@ function my_scripts_method() {
 	);
 }
 
-
-// instantiate components
-
-
 ?>
