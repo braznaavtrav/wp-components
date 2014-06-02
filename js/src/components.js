@@ -1,8 +1,15 @@
-(function(posts) {
+(function() {
   'use strict';
 
   var components = angular.module('components', []),
-      baseUrl = 'wp-content/themes/angular/components/';
+      baseUrl = '/wp-content/themes/wp-components/components/';
+
+  components.directive('postCanvas', function() {
+    return {
+      restrict: 'E',
+      templateUrl: baseUrl + 'post-canvas.html'
+    };
+  });
 
   components.directive('carousel', function() {
     return {
@@ -11,17 +18,4 @@
     };
   });
 
-  components.directive('blogPosts', function() {
-    return {
-      restrict: 'E',
-      templateUrl: baseUrl + 'blog-posts.html',
-      controller: function() {
-        this.posts = posts;
-        console.log(this.posts);
-      },
-      controllerAs: 'posts'
-
-    };
-  });
-
-}(window.posts));
+}());

@@ -7,6 +7,8 @@
     $interpolateProvider.startSymbol('<%=');
     $interpolateProvider.endSymbol('%>');
   });
+
+  console.log('running app');
   
 
 }());

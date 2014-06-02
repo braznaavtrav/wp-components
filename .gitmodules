@@ -1,3 +1,6 @@
 [submodule "lib/timber"]
 	path = lib/timber
 	url = https://github.com/jarednova/timber.git
+[submodule "lib/cmb"]
+	path = lib/cmb
+	url = https://github.com/humanmade/Custom-Meta-Boxes.git
