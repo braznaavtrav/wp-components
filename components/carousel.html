@@ -1,1 +1,8 @@
-<h1>CAROUSEL</h1>
+<div ng-show="isAdmin">
+  <h1>Carousel Options</h1>
+  <input type="text" ng-model="componentData">
+</div>
+<div ng-hide="isAdmin">
+  <h1>CAROUSEL</h1>
+</div>
+

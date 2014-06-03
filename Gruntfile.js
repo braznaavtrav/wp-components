@@ -18,7 +18,7 @@ module.exports = function(grunt) {
         plusplus: true,
         quotmark: 'single',
         undef: true,
-        unused: true,
+        unused: false,
         strict: true,
         trailing: true,
         globals: {
@@ -42,6 +42,14 @@ module.exports = function(grunt) {
       }
     },
 
+    less: {
+      backend: {
+        files: {
+          'css/wp-components.css': 'css/less/wp-components.less'
+        }
+      }
+    },
+
     watch: {
       configFiles: {
         files: [ 'Gruntfile.js' ],
@@ -56,6 +64,10 @@ module.exports = function(grunt) {
         files: ['js/src/*.js'],
         tasks: ['jshint', 'uglify:default']
       },
+      less: {
+        files: ['css/less/**'],
+        tasks: ['less']
+      },
       options: {
         livereload: true,
       }
@@ -66,6 +78,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-jshint');
+  grunt.loadNpmTasks('grunt-contrib-less');
 
   grunt.registerTask('default', ['watch']);
 }

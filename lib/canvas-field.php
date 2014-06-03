@@ -5,7 +5,8 @@ class Canvas_Field extends CMB_Field {
   public function html() { 
   ?>
     <div ng-app="app">
-      <post-canvas></post-canvas>
+      <palette-canvas></palette-canvas>
+      <input ng-model="json" <?php $this->id_attr(); ?> <?php $this->boolean_attr(); ?> type="text" <?php $this->class_attr(); ?> <?php $this->name_attr(); ?> ng-init="json = '<?php echo esc_attr( $this->get_value() ); ?>'" />
     </div>
   <?php
   }
@@ -26,7 +27,7 @@ class Canvas_Field extends CMB_Field {
     wp_enqueue_script(
       'app',
       get_stylesheet_directory_uri() . '/js/app.js',
-      array('angular', 'jquery'),
+      array('angular'),
       false,
       true
     );
