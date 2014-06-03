@@ -8,7 +8,4 @@
     $interpolateProvider.endSymbol('%>');
   });
 
-  console.log('running app');
-  
-
 }());
