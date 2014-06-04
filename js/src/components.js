@@ -7,29 +7,19 @@
 
   if (isAdmin) {
 
-    components.controller('ddController', ['$scope', '$compile' , function($scope, $compile){
-
-      $scope.dropped = function(dragEl, dropEl) {
-        var drop = angular.element(dropEl),
-            drag = angular.element(dragEl),
-            directiveHTML = drag.data('directive'),
-            compiledDirectiveHTML = $compile('<' + directiveHTML + '></' + directiveHTML + '>')($scope);
-
-        drop.html(compiledDirectiveHTML);
-      };
-    }]);
-
-
     components.directive('raDraggable', ['$rootScope', 'uuid', function($rootScope, uuid) {
       return {
         restrict: 'A',
         link: function(scope, el) {
           angular.element(el).attr('draggable', 'true');
-          var id = angular.element(el).attr('id');
+          var id;
+          if (scope.section) {
+            id = scope.section.id;
+          }
           if (!id) {
             id = uuid.new();
-            angular.element(el).attr('id', id);
           }
+          angular.element(el).attr('id', id);
           
           el.bind('dragstart', function() {
             window.localStorage.setItem('text', id);
@@ -53,11 +43,14 @@
           onDrop: '&'
         },
         link: function(scope, el, attrs, paletteCanvasCtrl) {
-          var id = angular.element(el).attr('id');
+          var id;
+          if (scope.section) {
+            id = scope.section.id;
+          }
           if (!id) {
             id = uuid.new();
-            angular.element(el).attr('id', id);
           }
+          angular.element(el).attr('id', id);
                      
           el.bind('dragover', function(e) {
             if (e.preventDefault) {
@@ -70,12 +63,21 @@
           el.bind('dragenter', function(e) {
             // this / e.target is the current hover target.
             if (angular.element(e.target).hasClass('droparea')) {
-              angular.element(e.target).addClass('ra-over');
+              var el = angular.element('#' + window.localStorage.getItem('text'));
+              if (el.hasClass('droparea')) {
+                if (el.attr('id') !== angular.element(e.target).attr('id')) {
+                  angular.element(e.target).addClass('ra-over-order');
+                }
+              }
+              else {
+                angular.element(e.target).addClass('ra-over');
+              }
             }
           });
           
           el.bind('dragleave', function(e) {
-            angular.element(e.target).removeClass('ra-over');  // this / e.target is previous target element.
+            angular.element(e.target).removeClass('ra-over');
+            angular.element(e.target).removeClass('ra-over-order');
           });
           
           el.bind('drop', function(e) {
@@ -88,17 +90,23 @@
             }
 
             var data = window.localStorage.getItem('text');
-            var dest = document.getElementById(id);
+            var dest = document.getElementById(el.attr('id'));
             var src = document.getElementById(data);
 
             if (angular.element(src).hasClass('droparea')) {
-              paletteCanvasCtrl.reorderSections();
+              if (id !== data) {
+                console.log('you dragged a droparea');
+                scope.$parent.reorderSections();
+              }
             }
 
-            if (angular.element(dest).hasClass('droparea')) {
+            if (angular.element(src).hasClass('palette-item')) {
               scope.onDrop({dragEl: src, dropEl: dest});
-              // paletteCanvasCtrl.addSection(src);
             }
+
+            angular.element(e.target).removeClass('ra-over');
+            angular.element(e.target).removeClass('ra-over-order');
+
           });
 
           $rootScope.$on('RA-DRAG-START', function() {
@@ -110,6 +118,7 @@
             var el = document.getElementById(id);
             angular.element(el).removeClass('ra-target');
             angular.element(el).removeClass('ra-over');
+            angular.element(el).removeClass('ra-over-order');
           });
         }
       };
@@ -134,23 +143,52 @@
             $scope.json = angular.toJson($scope.sections);
           };
 
-          $scope.addToSection = function(component) {
-            console.log('addSection');
-            $scope.sections.push('');
+          $scope.removeSection = function(index) {
+            $scope.sections.splice(index,1);
+            $scope.json = angular.toJson($scope.sections);
+          };
+
+          $scope.reorderSections = function(dragEl, dropEl) {
+            console.log('reorderSections');
+            $scope.json = angular.toJson($scope.sections);
+          };
+
+          $scope.addToSection = function(dragEl, dropEl) {
+            console.log('addToSection');
+            var drop = angular.element(dropEl),
+                drag = angular.element(dragEl);
+
+            // get section
+            var dropSection;
+            console.log('before ' + angular.toJson($scope.sections));
+            for (var i = $scope.sections.length - 1; i >= 0; i-=1) {
+              if ($scope.sections[i].id === drop.attr('id')) {
+
+                $scope.updateDataInSection(i, {id: drop.attr('id'), directive: drag.data('directive')});
+                break;
+              }
+            }
+            console.log('after ' + angular.toJson($scope.sections));
+            
+            // // put data in section
+            // console.log(directiveHTML);
+            // update json
+            $scope.json = angular.toJson($scope.sections);
           };
 
           $scope.updateDataInSection = function(sectionNumber, sectionData) {
+            console.log('updateDataInSection');
             $scope.sections[sectionNumber] = sectionData;
+            $scope.json = angular.toJson($scope.sections);
+            $scope.$apply();
           };
 
           $scope.updateData = function() {
             console.log('updateData', $scope.sections);
-            // parse sections
-            // build json
+            $scope.json = angular.toJson($scope.sections);
           };
 
-        },
-        controllerAs: 'paletteCanvasCtrl'
+        }
       };
     });
 
@@ -159,18 +197,19 @@
       return {
         restrict: 'E',
         replace: true,
-        // require: '^paletteCanvas',
         link: function(scope , element, attrs) {
           scope.isAdmin = isAdmin;
-          $http.get(baseUrl + scope.content.directive + '.html', {cache: $templateCache}).success(function(tplContent){
-            element.replaceWith($compile(tplContent)(scope));
-          });
+          if (scope.content.directive) {
+            $http.get(baseUrl + scope.content.directive + '.html', {cache: $templateCache}).success(function(tplContent){
+              element.replaceWith($compile(tplContent)(scope));
+            });
+          }
         },
         controller: function($scope) {
           $scope.updateData = function() {
             // this probably/definitely isn't the best way to do this
             // todo: refactor?
-            $scope.$parent.$parent.$parent.updateData();
+            $scope.$parent.$parent.updateData();
           };
         },
         scope: {
@@ -191,16 +230,7 @@
     return {
       restrict: 'E',
       require: 'paletteCanvas',
-      templateUrl: baseUrl + 'ra-carousel.html',
-      // link: function(scope, element, attrs, paletteCanvasCtrl) {
-
-      // },
-      controller: function($scope) {
-        // $scope.componentData = {
-        //   slides: []
-        // };
-
-      }
+      templateUrl: baseUrl + 'ra-carousel.html'
     };
   });
 
@@ -208,17 +238,7 @@
     return {
       restrict: 'E',
       require: 'paletteCanvas',
-      templateUrl: baseUrl + 'ra-video.html',
-      // link: function(scope, element, attrs, paletteCanvasCtrl) {
-
-      // },
-      controller: function($scope) {
-        $scope.isAdmin = isAdmin;
-        // $scope.componentData = {
-        //   slides: []
-        // };
-
-      }
+      templateUrl: baseUrl + 'ra-video.html'
     };
   });
 

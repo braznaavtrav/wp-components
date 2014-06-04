@@ -1,15 +1,14 @@
-<div class="cmb-row" ng-controller="ddController">
+<div class="cmb-row">
   <div class="cmb-cell-3">
     <div class="palette" ng-repeat="directive in directives">
       <div class="palette-item" ra-draggable data-directive="<%= directive %>"><%= directive %></div>
     </div>
   </div>
   <div class="cmb-cell-9">
-    <div class="droparea" ng-repeat="section in sections" ra-draggable ra-drop-target on-drop="dropped(dragEl, dropEl)">
+    <div class="droparea" ng-repeat="section in sections" ra-draggable ra-drop-target on-drop="addToSection(dragEl, dropEl)">
       <section-item content="section"></section-item>
-      <a class="button" href ng-click="removeDroparea()">-</a>
+      <a class="button" href ng-click="removeSection($index)">-</a>
     </div>
     <a class="button" href ng-click="addSection()">+</a>
-    <textarea><%= json %></textarea>
   </div>
 </div>

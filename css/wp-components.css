@@ -30,6 +30,9 @@
 .ra-over * {
   box-sizing: border-box;
 }
+.ra-over-order {
+  border-top: 2px dashed #444 !important;
+}
 .droparea {
   background: #fafafa;
   margin-right: 2px;
