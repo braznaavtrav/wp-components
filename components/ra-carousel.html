@@ -1,0 +1,9 @@
+<div ng-show="isAdmin">
+  <h1>Carousel Options</h1>
+  <%= content.data.color %>
+  <input type="text" ng-model="content.data.color" ng-change="updateData()">
+</div>
+<div ng-hide="isAdmin">
+  <h1>CAROUSEL</h1>
+</div>
+

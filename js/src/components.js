@@ -44,6 +44,7 @@
       };
     }]);
 
+
     components.directive('raDropTarget', ['$rootScope', 'uuid', function($rootScope, uuid) {
       return {
         require: '^paletteCanvas',
@@ -115,23 +116,66 @@
     }]);
 
 
-
-    components.directive('paletteCanvas', function($compile) {
+    components.directive('paletteCanvas', function($compile, uuid) {
       return {
         restrict: 'E',
         templateUrl: baseUrl + 'palette-canvas.html',
         controller: function($scope) {
           $scope.json = angular.element('#_cmb_component_canvas-cmb-field-0').val();
           $scope.sections = angular.fromJson($scope.json);
-          $scope.directives = ['carousel'];
+
+          $scope.directives = [
+            'ra-carousel',
+            'ra-video'
+          ];
 
           $scope.addSection = function() {
+            $scope.sections.push({id: uuid.new()});
+            $scope.json = angular.toJson($scope.sections);
+          };
+
+          $scope.addToSection = function(component) {
             console.log('addSection');
             $scope.sections.push('');
           };
 
+          $scope.updateDataInSection = function(sectionNumber, sectionData) {
+            $scope.sections[sectionNumber] = sectionData;
+          };
+
+          $scope.updateData = function() {
+            console.log('updateData', $scope.sections);
+            // parse sections
+            // build json
+          };
+
         },
         controllerAs: 'paletteCanvasCtrl'
+      };
+    });
+
+
+    components.directive('sectionItem', function ($http, $templateCache, $compile) {
+      return {
+        restrict: 'E',
+        replace: true,
+        // require: '^paletteCanvas',
+        link: function(scope , element, attrs) {
+          scope.isAdmin = isAdmin;
+          $http.get(baseUrl + scope.content.directive + '.html', {cache: $templateCache}).success(function(tplContent){
+            element.replaceWith($compile(tplContent)(scope));
+          });
+        },
+        controller: function($scope) {
+          $scope.updateData = function() {
+            // this probably/definitely isn't the best way to do this
+            // todo: refactor?
+            $scope.$parent.$parent.$parent.updateData();
+          };
+        },
+        scope: {
+          content:'='
+        }
       };
     });
 
@@ -143,11 +187,28 @@
   //  = REGISTER COMPONENTS =
   //  =======================
 
-  components.directive('carousel', function() {
+  components.directive('raCarousel', function() {
     return {
       restrict: 'E',
       require: 'paletteCanvas',
-      templateUrl: baseUrl + 'carousel.html',
+      templateUrl: baseUrl + 'ra-carousel.html',
+      // link: function(scope, element, attrs, paletteCanvasCtrl) {
+
+      // },
+      controller: function($scope) {
+        // $scope.componentData = {
+        //   slides: []
+        // };
+
+      }
+    };
+  });
+
+  components.directive('raVideo', function() {
+    return {
+      restrict: 'E',
+      require: 'paletteCanvas',
+      templateUrl: baseUrl + 'ra-video.html',
       // link: function(scope, element, attrs, paletteCanvasCtrl) {
 
       // },

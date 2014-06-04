@@ -6,9 +6,10 @@
   </div>
   <div class="cmb-cell-9">
     <div class="droparea" ng-repeat="section in sections" ra-draggable ra-drop-target on-drop="dropped(dragEl, dropEl)">
-      <%= section %>
-      <a class="button" href ng-click="paletteCanvasCtrl.removeDroparea()">-</a>
+      <section-item content="section"></section-item>
+      <a class="button" href ng-click="removeDroparea()">-</a>
     </div>
-    <a class="button" href ng-click="sections.push('')">+</a>
+    <a class="button" href ng-click="addSection()">+</a>
+    <textarea><%= json %></textarea>
   </div>
 </div>
