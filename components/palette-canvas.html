@@ -1,14 +1,21 @@
-<div class="cmb-row">
+<div class="cmb-row" ng-show="isAdmin">
   <div class="cmb-cell-3">
     <div class="palette">
-      <div class="palette-item" ng-repeat="directive in directives" ra-draggable data-directive="<%= directive.name %>"><img src="<%= directive.icon %>"></div>
+      <div class="palette-item" ng-repeat="directive in directives" ra-draggable data-directive="<%= directive.name %>"><img ng-src="<%= directive.icon %>"></div>
     </div>
   </div>
   <div class="cmb-cell-9">
-    <div class="droparea" ng-repeat="section in sections" ra-draggable ra-drop-target on-drop="addToSection(dragEl, dropEl)">
-      <section-item content="section"></section-item>
-      <a class="button" href ng-click="removeSection($index)">-</a>
+    <div class="palette-canvas">
+      <div class="droparea" ng-repeat="section in sections" ra-draggable ra-drop-target on-drop="addToSection(dragEl, dropEl)">
+        <section-item content="section"></section-item>
+        <a class="remove-section" href ng-click="removeSection($index)">&times;</a>
+      </div>
+      <a class="button" href ng-click="addSection()">+</a>
     </div>
-    <a class="button" href ng-click="addSection()">+</a>
   </div>
+</div>
+
+
+<div ng-repeat="section in sections" ng-hide="isAdmin">
+  <section-item content="section"></section-item>
 </div>

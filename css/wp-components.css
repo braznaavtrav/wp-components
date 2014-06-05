@@ -1,10 +1,13 @@
+.Canvas_Field .field-title {
+  display: none;
+}
 .palette {
   position: relative;
   box-sizing: border-box;
   width: 100%;
   height: auto;
   background: #ddd;
-  padding: 10px;
+  padding: 5px;
   float: left;
 }
 .palette .palette-item {
@@ -17,10 +20,11 @@
   color: #fff;
 }
 .palette-canvas {
-  background: #eee;
-  min-height: 100px;
   width: 100%;
   float: left;
+}
+.palette-canvas,
+.palette-canvas * {
   box-sizing: border-box;
 }
 .ra-over {
@@ -28,24 +32,37 @@
   border: 2px dashed #444 !important;
   background: #efefef !important;
 }
-.ra-over,
-.ra-over * {
-  box-sizing: border-box;
-}
 .ra-over-order {
   border-top: 2px dashed #444 !important;
 }
 .droparea {
+  padding: 15px;
+  position: relative;
   background: #fafafa;
   margin-right: 2px;
-  margin-top: 2px;
+  margin-bottom: 2px;
   width: 100%;
   min-height: 100px;
   border: none;
   float: left;
+  cursor: move;
 }
 .droparea.ra-target {
   /* applied to all drop targets when a drag operation begins, used to indicate drop targets on a page */
   background-color: #ddd;
   opacity: .5;
+}
+.droparea h4 {
+  margin: 0 0 10px;
+}
+.droparea .remove-section {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  text-decoration: none;
+  font-size: 20px;
+  color: #444;
+}
+.droparea .remove-section:hover {
+  color: #2ea2cc;
 }

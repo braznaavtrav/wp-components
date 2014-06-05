@@ -16,36 +16,34 @@
     return str.replace(/\W+/g, '-').replace(/([a-z\d])([A-Z])/g, '$1-$2').toLowerCase();
   };
 
-  if (isAdmin) {
-
-    components.directive('raDraggable', ['$rootScope', 'uuid', function($rootScope, uuid) {
-      return {
-        restrict: 'A',
-        link: function(scope, el) {
-          angular.element(el).attr('draggable', 'true');
-          var id;
-          if (scope.section) {
-            id = scope.section.id;
-          }
-          if (!id) {
-            id = uuid.new();
-          }
-          angular.element(el).attr('id', id);
-          
-          el.bind('dragstart', function() {
-            window.localStorage.setItem('text', id);
-
-            $rootScope.$emit('RA-DRAG-START');
-          });
-          
-          el.bind('dragend', function() {
-            $rootScope.$emit('RA-DRAG-END');
-          });
+  components.directive('raDraggable', ['$rootScope', 'uuid', function($rootScope, uuid) {
+    return {
+      restrict: 'A',
+      link: function(scope, el) {
+        angular.element(el).attr('draggable', 'true');
+        var id;
+        if (scope.section) {
+          id = scope.section.id;
         }
-      };
-    }]);
+        if (!id) {
+          id = uuid.new();
+        }
+        angular.element(el).attr('id', id);
+        
+        el.bind('dragstart', function() {
+          window.localStorage.setItem('text', id);
 
+          $rootScope.$emit('RA-DRAG-START');
+        });
+        
+        el.bind('dragend', function() {
+          $rootScope.$emit('RA-DRAG-END');
+        });
+      }
+    };
+  }]);
 
+  if (isAdmin) {
     components.directive('raDropTarget', ['$rootScope', 'uuid', function($rootScope, uuid) {
       return {
         require: '^paletteCanvas',
@@ -141,12 +139,16 @@
       };
     }]);
 
+  }
 
-    components.directive('paletteCanvas', function($compile, uuid) {
-      return {
-        restrict: 'E',
-        templateUrl: baseDirectiveUrl + 'palette-canvas.html',
-        controller: function($scope) {
+
+  components.directive('paletteCanvas', function($compile, uuid) {
+    return {
+      restrict: 'E',
+      templateUrl: baseDirectiveUrl + 'palette-canvas.html',
+      controller: function($scope) {
+        $scope.isAdmin = isAdmin;
+        if (isAdmin) {
           $scope.directives = [];
           // this seems really dirty, maybe figure out better way?
           for (var i = components._invokeQueue.length - 1; i >= 0; i -= 1) {
@@ -159,10 +161,17 @@
               });
             }
           }
-          
+        
           $scope.json = angular.element('#_cmb_component_canvas-cmb-field-0').val();
-          $scope.sections = angular.fromJson($scope.json);
+        }
+        else {
+          $scope.json = window.sections;
+          console.log($scope.json);
+        }
+        
+        $scope.sections = angular.fromJson($scope.json);
 
+        if (isAdmin) {
           $scope.addSection = function() {
             $scope.sections.push({id: uuid.new()});
             $scope.json = angular.toJson($scope.sections);
@@ -175,6 +184,7 @@
 
           $scope.reorderSections = function(from, to) {
             utils.arrayMove($scope.sections, from, to);
+            $scope.json = angular.toJson($scope.sections);
             $scope.$apply();
           };
 
@@ -206,39 +216,37 @@
           $scope.$watch( 'sections', function() {
             $scope.json = angular.toJson($scope.sections);
           });
-
         }
-      };
-    });
+        
+      }
+    };
+  });
 
 
-    components.directive('sectionItem', function ($http, $templateCache, $compile) {
-      return {
-        restrict: 'E',
-        replace: true,
-        link: function(scope , element, attrs) {
-          scope.isAdmin = isAdmin;
-          if (scope.content.directive) {
-            $http.get(baseDirectiveUrl + scope.content.directive + '.html', {cache: $templateCache}).success(function(tplContent){
-              element.replaceWith($compile(tplContent)(scope));
-            });
-          }
-        },
-        controller: function($scope) {
-          $scope.updateData = function() {
-            // this probably/definitely isn't the best way to do this
-            // todo: refactor?
-            $scope.$parent.$parent.updateData();
-          };
-        },
-        scope: {
-          content:'='
+  components.directive('sectionItem', function ($http, $templateCache, $compile) {
+    return {
+      restrict: 'E',
+      replace: true,
+      link: function(scope , element, attrs) {
+        scope.isAdmin = isAdmin;
+        if (scope.content.directive) {
+          $http.get(baseDirectiveUrl + scope.content.directive + '.html', {cache: $templateCache}).success(function(tplContent){
+            element.replaceWith($compile(tplContent)(scope));
+          });
         }
-      };
-    });
-
-
-  }
+      },
+      controller: function($scope) {
+        $scope.updateData = function() {
+          // this probably/definitely isn't the best way to do this
+          // todo: refactor?
+          $scope.$parent.$parent.updateData();
+        };
+      },
+      scope: {
+        content:'='
+      }
+    };
+  });
 
 
   //  =======================
@@ -248,8 +256,7 @@
   components.directive('raCarousel', function() {
     return {
       restrict: 'E',
-      templateUrl: baseDirectiveUrl + 'ra-carousel.html',
-      icon: baseDirectiveUrl + 'ra-carousel.svg'
+      templateUrl: baseDirectiveUrl + 'ra-carousel.html'
     };
   });
 
