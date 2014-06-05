@@ -1,7 +1,7 @@
 <div class="cmb-row">
   <div class="cmb-cell-3">
-    <div class="palette" ng-repeat="directive in directives">
-      <div class="palette-item" ra-draggable data-directive="<%= directive %>"><%= directive %></div>
+    <div class="palette">
+      <div class="palette-item" ng-repeat="directive in directives" ra-draggable data-directive="<%= directive.name %>"><img src="<%= directive.icon %>"></div>
     </div>
   </div>
   <div class="cmb-cell-9">

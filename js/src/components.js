@@ -2,7 +2,8 @@
   'use strict';
 
   var components = angular.module('components', ['ra.services']),
-      baseUrl = '/wp-content/themes/wp-components/components/',
+      baseDirectiveUrl = '/wp-content/themes/wp-components/components/',
+      baseImageUrl = '/wp-content/themes/wp-components/img/',
       isAdmin = document.querySelector('body').classList.contains('wp-admin'),
       utils = {};
 
@@ -144,14 +145,18 @@
     components.directive('paletteCanvas', function($compile, uuid) {
       return {
         restrict: 'E',
-        templateUrl: baseUrl + 'palette-canvas.html',
+        templateUrl: baseDirectiveUrl + 'palette-canvas.html',
         controller: function($scope) {
           $scope.directives = [];
+          // this seems really dirty, maybe figure out better way?
           for (var i = components._invokeQueue.length - 1; i >= 0; i -= 1) {
             var type = components._invokeQueue[i][1],
                 name = components._invokeQueue[i][2][0];
             if (type === 'directive' && name !== 'sectionItem' && name !== 'paletteCanvas' && name !== 'raDropTarget' && name !== 'raDraggable') {
-              $scope.directives.push(utils.stringCamelToDash(name));
+              $scope.directives.push({
+                name: utils.stringCamelToDash(name),
+                icon: baseImageUrl + utils.stringCamelToDash(name) + '.svg'
+              });
             }
           }
           
@@ -214,7 +219,7 @@
         link: function(scope , element, attrs) {
           scope.isAdmin = isAdmin;
           if (scope.content.directive) {
-            $http.get(baseUrl + scope.content.directive + '.html', {cache: $templateCache}).success(function(tplContent){
+            $http.get(baseDirectiveUrl + scope.content.directive + '.html', {cache: $templateCache}).success(function(tplContent){
               element.replaceWith($compile(tplContent)(scope));
             });
           }
@@ -243,21 +248,22 @@
   components.directive('raCarousel', function() {
     return {
       restrict: 'E',
-      templateUrl: baseUrl + 'ra-carousel.html'
+      templateUrl: baseDirectiveUrl + 'ra-carousel.html',
+      icon: baseDirectiveUrl + 'ra-carousel.svg'
     };
   });
 
   components.directive('raVideo', function() {
     return {
       restrict: 'E',
-      templateUrl: baseUrl + 'ra-video.html'
+      templateUrl: baseDirectiveUrl + 'ra-video.html'
     };
   });
 
   components.directive('raImage', function() {
     return {
       restrict: 'E',
-      templateUrl: baseUrl + 'ra-image.html'
+      templateUrl: baseDirectiveUrl + 'ra-image.html'
     };
   });
 
