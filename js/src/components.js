@@ -11,6 +11,10 @@
     array.splice(to, 0, array.splice(from, 1)[0]);
   };
 
+  utils.stringCamelToDash = function(str) {
+    return str.replace(/\W+/g, '-').replace(/([a-z\d])([A-Z])/g, '$1-$2').toLowerCase();
+  };
+
   if (isAdmin) {
 
     components.directive('raDraggable', ['$rootScope', 'uuid', function($rootScope, uuid) {
@@ -142,14 +146,17 @@
         restrict: 'E',
         templateUrl: baseUrl + 'palette-canvas.html',
         controller: function($scope) {
+          $scope.directives = [];
+          for (var i = components._invokeQueue.length - 1; i >= 0; i -= 1) {
+            var type = components._invokeQueue[i][1],
+                name = components._invokeQueue[i][2][0];
+            if (type === 'directive' && name !== 'sectionItem' && name !== 'paletteCanvas' && name !== 'raDropTarget' && name !== 'raDraggable') {
+              $scope.directives.push(utils.stringCamelToDash(name));
+            }
+          }
+          
           $scope.json = angular.element('#_cmb_component_canvas-cmb-field-0').val();
           $scope.sections = angular.fromJson($scope.json);
-
-          $scope.directives = [
-            'ra-carousel',
-            'ra-video',
-            'ra-image'
-          ];
 
           $scope.addSection = function() {
             $scope.sections.push({id: uuid.new()});
