@@ -6,7 +6,7 @@ class Canvas_Field extends CMB_Field {
   ?>
     <div ng-app="app">
       <palette-canvas></palette-canvas>
-      <input ng-model="json" <?php $this->id_attr(); ?> <?php $this->boolean_attr(); ?> type="text" <?php $this->class_attr(); ?> <?php $this->name_attr(); ?> ng-init="json = '<?php echo esc_attr( $this->get_value() ); ?>'" />
+      <input style="display: none;" ng-model="json" <?php $this->id_attr(); ?> <?php $this->boolean_attr(); ?> type="text" <?php $this->class_attr(); ?> <?php $this->name_attr(); ?> ng-init="json = '<?php echo esc_attr( $this->get_value() ); ?>'" />
     </div>
   <?php
   }

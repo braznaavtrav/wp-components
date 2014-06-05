@@ -10,16 +10,11 @@
 <body class="{{ body_class }}">
 
 <div class="container">
-  <carousel></carousel>
   <div class="row">
     <div class="col-sm-9">
-      <blog-posts></blog-posts>
     </div>
   </div>
 </div>
-<script>
-var posts = {{ posts | json_encode() }};
-</script>
 {{ wp_footer }}
 </body>
 </html>

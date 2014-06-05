@@ -1,6 +1,6 @@
 <div ng-show="isAdmin">
   <h1>Video Options</h1>
-  <input type="text" ng-model="componentData">
+  <input type="text" ng-model="content.data.url" ng-change="updateData()">
 </div>
 <div ng-hide="isAdmin">
   <h1>VIDEO</h1>

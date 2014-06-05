@@ -3,7 +3,13 @@
 
   var components = angular.module('components', ['ra.services']),
       baseUrl = '/wp-content/themes/wp-components/components/',
-      isAdmin = angular.element('body').hasClass('wp-admin');
+      isAdmin = document.querySelector('body').classList.contains('wp-admin'),
+      utils = {};
+
+  // maybe should move utils to it's own angular module?
+  utils.arrayMove = function(array, from, to) {
+    array.splice(to, 0, array.splice(from, 1)[0]);
+  };
 
   if (isAdmin) {
 
@@ -54,14 +60,13 @@
                      
           el.bind('dragover', function(e) {
             if (e.preventDefault) {
-              e.preventDefault(); // Necessary. Allows us to drop.
+              e.preventDefault();
             }
             
             return false;
           });
           
           el.bind('dragenter', function(e) {
-            // this / e.target is the current hover target.
             if (angular.element(e.target).hasClass('droparea')) {
               var el = angular.element('#' + window.localStorage.getItem('text'));
               if (el.hasClass('droparea')) {
@@ -82,11 +87,11 @@
           
           el.bind('drop', function(e) {
             if (e.preventDefault) {
-              e.preventDefault(); // Necessary. Allows us to drop.
+              e.preventDefault();
             }
 
             if (e.stopPropogation) {
-              e.stopPropogation(); // Necessary. Allows us to drop.
+              e.stopPropogation();
             }
 
             var data = window.localStorage.getItem('text');
@@ -95,8 +100,15 @@
 
             if (angular.element(src).hasClass('droparea')) {
               if (id !== data) {
-                console.log('you dragged a droparea');
-                scope.$parent.reorderSections();
+                var fromNumber, toNumber;
+                toNumber = scope.$parent.$index;
+                for (var i = scope.$parent.$parent.sections.length - 1; i >= 0; i -= 1) {
+                  if (scope.$parent.$parent.sections[i].id === data) {
+                    fromNumber = i;
+                    break;
+                  }
+                }
+                scope.$parent.reorderSections(fromNumber, toNumber);
               }
             }
 
@@ -135,7 +147,8 @@
 
           $scope.directives = [
             'ra-carousel',
-            'ra-video'
+            'ra-video',
+            'ra-image'
           ];
 
           $scope.addSection = function() {
@@ -148,19 +161,15 @@
             $scope.json = angular.toJson($scope.sections);
           };
 
-          $scope.reorderSections = function(dragEl, dropEl) {
-            console.log('reorderSections');
-            $scope.json = angular.toJson($scope.sections);
+          $scope.reorderSections = function(from, to) {
+            utils.arrayMove($scope.sections, from, to);
+            $scope.$apply();
           };
 
           $scope.addToSection = function(dragEl, dropEl) {
-            console.log('addToSection');
             var drop = angular.element(dropEl),
                 drag = angular.element(dragEl);
 
-            // get section
-            var dropSection;
-            console.log('before ' + angular.toJson($scope.sections));
             for (var i = $scope.sections.length - 1; i >= 0; i-=1) {
               if ($scope.sections[i].id === drop.attr('id')) {
 
@@ -168,25 +177,23 @@
                 break;
               }
             }
-            console.log('after ' + angular.toJson($scope.sections));
-            
-            // // put data in section
-            // console.log(directiveHTML);
-            // update json
+
             $scope.json = angular.toJson($scope.sections);
           };
 
           $scope.updateDataInSection = function(sectionNumber, sectionData) {
-            console.log('updateDataInSection');
             $scope.sections[sectionNumber] = sectionData;
             $scope.json = angular.toJson($scope.sections);
             $scope.$apply();
           };
 
           $scope.updateData = function() {
-            console.log('updateData', $scope.sections);
             $scope.json = angular.toJson($scope.sections);
           };
+
+          $scope.$watch( 'sections', function() {
+            $scope.json = angular.toJson($scope.sections);
+          });
 
         }
       };
@@ -229,7 +236,6 @@
   components.directive('raCarousel', function() {
     return {
       restrict: 'E',
-      require: 'paletteCanvas',
       templateUrl: baseUrl + 'ra-carousel.html'
     };
   });
@@ -237,8 +243,14 @@
   components.directive('raVideo', function() {
     return {
       restrict: 'E',
-      require: 'paletteCanvas',
       templateUrl: baseUrl + 'ra-video.html'
+    };
+  });
+
+  components.directive('raImage', function() {
+    return {
+      restrict: 'E',
+      templateUrl: baseUrl + 'ra-image.html'
     };
   });
 
